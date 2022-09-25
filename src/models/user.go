@@ -6,12 +6,11 @@ type IUser interface {
 
 // User is a user.
 type User struct {
-	Name     string    `json:"name"`
-	Email    string    `json:"email"`
-	LastName string    `json:"lastName"`
-	Username string    `json:"username"`
-	Password string    `json:"password"`
-	Balance  []Balance `json:"balance"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	LastName string `json:"lastName"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 var Users = []User{
