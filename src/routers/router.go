@@ -2,16 +2,32 @@ package routers
 
 import (
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 )
 
+var (
+	WarningLogger *log.Logger
+	InfoLogger    *log.Logger
+	ErrorLogger   *log.Logger
+)
+
+func init() {
+	InfoLogger = log.New(log.Writer(), "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+	WarningLogger = log.New(log.Writer(), "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
+	ErrorLogger = log.New(log.Writer(), "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+}
+
 func Routers() *mux.Router {
 	r := mux.NewRouter().StrictSlash(true)
-	api := r.PathPrefix("/api").Subrouter()
-	enableCORS(api)
-	//StudentsRouter(i)
-	AuthRouter(api)
-
+	auth := r.PathPrefix("/api/authenticate").Subrouter()
+	expenses := r.PathPrefix("/api/expenses").Subrouter()
+	enableCORS(r)
+	InfoLogger.Println("CORS enabled")
+	AuthRouter(auth)
+	InfoLogger.Println("Auth router enabled at /api/authenticate")
+	TransactionRouter(expenses)
+	InfoLogger.Println("Expense router enabled at /api/expenses")
 	return r
 }
 
