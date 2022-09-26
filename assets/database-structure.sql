@@ -96,7 +96,6 @@ SELECT * FROM Category WHERE user_id = 1 OR user_id = 2;
 
 -- Get Ammount of expenses for active budget for user 2
 SELECT SUM(amount) FROM Expense WHERE budget_id = (select id from Budget where current_budget = 1 and user_id=2);
-
 -- get rest of budget for user 2
 SELECT (amount - (SELECT SUM(amount) FROM Expense WHERE budget_id = (select id from Budget where current_budget = 1 and user_id=2))) FROM Budget WHERE current_budget = 1 and user_id=2;
 

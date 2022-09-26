@@ -63,17 +63,16 @@ func (b *Budget) GetCurrentBalance(userId int) (Budget, error) {
 			}
 		}
 
-		switch i {
-		case 0:
-			ErrorLogger.Println("No budget for user with id: ", userId)
+		if i == 0 {
+			WarningLogger.Println("No budget for user with id: ", userId)
 			return budget, fmt.Errorf("No budgets for user with id: %d", userId)
-		case 1:
-			InfoLogger.Println("Found active budget for user with id: ", userId)
-			return budget, nil
-		default:
-			ErrorLogger.Println("Multiple active budgets for user with id: ", userId)
-			return budget, fmt.Errorf("Multiple active budgets for user with id: %d", userId)
 		}
+		if i == 1 {
+			return budget, nil
+		}
+		WarningLogger.Println("Multiple active budgets for user with id: ", userId)
+		return budget, fmt.Errorf("Multiple active budgets for user with id: %d", userId)
+
 	} else {
 		ErrorLogger.Println("User with id: ", userId, " does not exist")
 		return Budget{}, fmt.Errorf("User with id: %d does not exist or is not active", userId)

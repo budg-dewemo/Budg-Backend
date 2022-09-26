@@ -2,9 +2,7 @@ package main
 
 import (
 	"BudgBackend/src/config"
-	"BudgBackend/src/models"
 	"BudgBackend/src/routers"
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -15,33 +13,33 @@ func main() {
 		log.Fatal("cannot load config:", err)
 	}
 
-	//get active budget by id
-	budget := models.Budget{}
-	bd, errb := budget.GetCurrentBalance(1)
-	if errb != nil {
-		fmt.Println(errb)
-	} else {
-		fmt.Println(bd)
-	}
+	////get active budget by id
+	//budget := models.Budget{}
+	//bd, errb := budget.GetCurrentBalance(1)
+	//if errb != nil {
+	//	fmt.Println(errb)
+	//} else {
+	//	fmt.Println(bd)
+	//}
+	//
+	//// Examples Expenses
+	//expenses := models.Expense{}
+	//expense, err := expenses.GetExpense(8)
+	//if err != nil {
+	//	fmt.Println(err)
+	//} else {
+	//	fmt.Println(expense)
+	//}
+	//// get all expenses for user
+	//trs, errt := expenses.GetExpenses(2)
+	//if errt != nil {
+	//	fmt.Println(errt)
+	//} else {
+	//	fmt.Println(trs)
+	//}
 
-	// Examples transactions
-	transactions := models.Transaction{}
-	transaction, err := transactions.GetTransaction(8)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(transaction)
-	}
-	// get all transaction for user
-	trs, errt := transactions.GetTransactions(2)
-	if errt != nil {
-		fmt.Println(errt)
-	} else {
-		fmt.Println(trs)
-	}
-
-	// create transaction
-	//id, errct := transactions.CreateTransaction(2, 1, 100, "test", 1)
+	// create Expenses
+	//id, errct := expenses.CreateExpense(2, 1, 100, "test", 1)
 	//if errct != nil {
 	//	fmt.Println(errct)
 	//} else {
@@ -49,6 +47,7 @@ func main() {
 	//}
 
 	router := routers.Routers()
+	log.Println("Server started at address", config.ServerAddress+":8080")
 	log.Fatal(http.ListenAndServe(config.ServerAddress+":8080", router))
 
 }

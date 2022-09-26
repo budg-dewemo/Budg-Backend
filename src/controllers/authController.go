@@ -30,17 +30,33 @@ func init() {
 func CreateToken(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
+	// Get the JSON body and decode into credentials
 	_ = json.NewDecoder(r.Body).Decode(&user)
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": user.Username,
-		"password": user.Password,
-		"exp":      time.Now().Add(time.Hour * time.Duration(1)).Unix(),
-	})
-	tokenString, error := token.SignedString(jwtToken)
-	if error != nil {
-		fmt.Println(error)
+
+	//user := models.User{}
+	okLogin, errLogin := user.ValidateLogin()
+	if errLogin != nil {
+		err := json.NewEncoder(w).Encode(responses.Exception{Message: errLogin.Error()})
+		if err != nil {
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
-	json.NewEncoder(w).Encode(models.JwtToken{Token: tokenString})
+	if okLogin {
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+			"username": user.Username,
+			"id":       user.ID,
+			"exp":      time.Now().Add(time.Hour * time.Duration(1)).Unix(),
+		})
+		tokenString, error := token.SignedString(jwtToken)
+		if error != nil {
+			fmt.Println(error)
+		}
+		json.NewEncoder(w).Encode(models.JwtToken{Token: tokenString})
+
+	}
 }
 
 // ValidateMiddleware validates the JWT token.
@@ -52,7 +68,7 @@ func ValidateMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			if len(bearerToken) == 2 {
 				token, error := jwt.Parse(bearerToken[1], func(token *jwt.Token) (interface{}, error) {
 					if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-						return nil, fmt.Errorf("There was an error")
+						return nil, fmt.Errorf("there was an error")
 						w.WriteHeader(http.StatusUnauthorized)
 					}
 					return jwtToken, nil
