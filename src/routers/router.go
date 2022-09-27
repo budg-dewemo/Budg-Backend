@@ -22,12 +22,15 @@ func Routers() *mux.Router {
 	r := mux.NewRouter().StrictSlash(true)
 	auth := r.PathPrefix("/api/authenticate").Subrouter()
 	expenses := r.PathPrefix("/api/expenses").Subrouter()
+	signup := r.PathPrefix("/api/signup").Subrouter()
 	enableCORS(r)
 	InfoLogger.Println("CORS enabled")
 	AuthRouter(auth)
 	InfoLogger.Println("Auth router enabled at /api/authenticate")
 	TransactionRouter(expenses)
 	InfoLogger.Println("Expense router enabled at /api/expenses")
+	UserRouter(signup)
+	InfoLogger.Println("User router enabled at /api/signup")
 	return r
 }
 

@@ -8,8 +8,11 @@ CREATE TABLE User (
                       password VARCHAR(255) NOT NULL,
                       last_login DATETIME NULL,
                       active BOOLEAN NOT NULL,
+                      avatar VARCHAR(255) NULL,
                       PRIMARY KEY (id)
 );
+
+ALTER TABLE User ADD Column avatar VARCHAR(255) NULL;
 
 -- Create Table Budget
 CREATE TABLE Budget (
@@ -87,30 +90,32 @@ values (2, 1, 150, 'Jeans', 3, '2022-01-01 00:00:00');
 
 
 
--- Example queries
--- Get all expenses for active budget for user 2
+
+-- Obtener todos los gastos asociados al presupuesto activo del usuario 2
 SELECT * FROM Expense WHERE budget_id = (select id from Budget where current_budget = 1 and user_id=2);
 
--- Get all categories for user 1 and user 2
+-- Obtener todas las categorías asociadas al usuario 1 y 2 (El usuario 1 es el administrador)
 SELECT * FROM Category WHERE user_id = 1 OR user_id = 2;
 
--- Get Ammount of expenses for active budget for user 2
+-- Obtener el monto total de gastos asociados al presupuesto activo del usuario 2
 SELECT SUM(amount) FROM Expense WHERE budget_id = (select id from Budget where current_budget = 1 and user_id=2);
 -- get rest of budget for user 2
 SELECT (amount - (SELECT SUM(amount) FROM Expense WHERE budget_id = (select id from Budget where current_budget = 1 and user_id=2))) FROM Budget WHERE current_budget = 1 and user_id=2;
 
--- Get sum of all expenses for user 2 in active budget
+-- Obtner el monto total de gastos asociados al presupuesto activo del usuario 2
 SELECT SUM(amount) FROM Expense WHERE budget_id = (select id from Budget where current_budget = 1 and user_id=2);
 
 -- Dashboards
 
--- get top 5 expenses for user 2
+
+-- obtener los 5 gastos más altos del usuario 2
 SELECT * FROM Expense WHERE budget_id = (select id from Budget where current_budget = 1 and user_id=2) ORDER BY amount DESC LIMIT 5;
 
--- get total amount of expenses for user 2 by category in active budget
+-- Obtener el monto total de gastos asociados al presupuesto activo del usuario 2 agrupados por categoría
 SELECT category_id, SUM(amount) FROM Expense WHERE budget_id = (select id from Budget where current_budget = 1 and user_id=2) GROUP BY category_id;
 
 -- get amount and top 5 categories for user 2 in active budget
+-- obtener el monto total de gastos asociados al presupuesto activo del usuario 2 agrupados por categoría
 SELECT category_id, SUM(amount) FROM Expense WHERE budget_id = (select id from Budget where current_budget = 1 and user_id=2) GROUP BY category_id ORDER BY SUM(amount) DESC LIMIT 5;
 
 -- get amount name and top 5 categories for user 2 in active budget

@@ -11,12 +11,13 @@ type IUser interface {
 
 // User is a user.
 type User struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	LastName string `json:"lastName"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	LastName   string `json:"lastName"`
+	Email      string `json:"email"`
+	AvatarLink string `json:"avatar"`
+	Username   string `json:"username"`
+	Password   string `json:"password"`
 }
 
 var Users = []User{
@@ -108,4 +109,20 @@ func (u *User) ValidateLogin() (bool, error) {
 	ErrorLogger.Println("Multiple users with username: ", u.Username)
 	return false, fmt.Errorf("Multiple users with username: %s", u.Username)
 
+}
+func (u *User) createAvatar() string {
+	return fmt.Sprintf("https://ui-avatars.com/api/?name=%s+%s?length=2", u.Username, u.LastName)
+}
+
+func (u *User) CreateUser() (int64, error) {
+	if u.checkUserExists() {
+		return 0, fmt.Errorf("User already exists")
+	}
+	query := fmt.Sprintf("INSERT INTO User (name, last_name, username, password, email, avatar, active) VALUES ('%s', '%s', '%s', '%s', '%s', '%s',1)", u.Name, u.LastName, u.Username, u.Password, u.Email, u.createAvatar())
+	id, err := database.InsertDB(query)
+	if err != nil {
+		ErrorLogger.Println("Error creating user: ", err)
+		return 0, fmt.Errorf("Error creating user: ", err)
+	}
+	return id, nil
 }
