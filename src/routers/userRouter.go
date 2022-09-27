@@ -1,13 +1,14 @@
 package routers
 
-//func StudentsRouter(r *mux.Router) *mux.Router {
-//	i := r.PathPrefix("/issues").Subrouter()
-//	// allow CORS
-//	i.Use(mux.CORSMethodMiddleware(i))
-//	i.HandleFunc("", controllers.GetUsers).Methods("GET")
-//	i.HandleFunc("", controllers.AddUser).Methods("POST")
-//	//login
-//	i.HandleFunc("/login", controllers.Login).Methods("POST")
-//	i.HandleFunc("/{id}", controllers.DeleteUSer).Methods("DELETE")
-//	return i
-//}
+import (
+	"BudgBackend/src/controllers"
+	"github.com/gorilla/mux"
+)
+
+func UserRouter(r *mux.Router) *mux.Router {
+	u := r.PathPrefix("").Subrouter()
+	// allow CORS
+	u.Use(mux.CORSMethodMiddleware(u))
+	u.HandleFunc("", controllers.CreateUser).Methods("POST")
+	return u
+}
