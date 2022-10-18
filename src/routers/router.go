@@ -23,6 +23,8 @@ func Routers() *mux.Router {
 	auth := r.PathPrefix("/api/authenticate").Subrouter()
 	expenses := r.PathPrefix("/api/expenses").Subrouter()
 	signup := r.PathPrefix("/api/signup").Subrouter()
+	categories := r.PathPrefix("/api/categories").Subrouter()
+	userPreferences := r.PathPrefix("/api/userPreferences").Subrouter()
 	enableCORS(r)
 	InfoLogger.Println("CORS enabled")
 	AuthRouter(auth)
@@ -31,12 +33,16 @@ func Routers() *mux.Router {
 	InfoLogger.Println("Expense router enabled at /api/expenses")
 	UserRouter(signup)
 	InfoLogger.Println("User router enabled at /api/signup")
+	CategoriesRouter(categories)
+	InfoLogger.Println("Category router enabled at /api/categories")
+	UserPreferencesRouter(userPreferences)
+	InfoLogger.Println("User preferences router enabled at /api/userPreferences")
 	return r
 }
 
 func enableCORS(router *mux.Router) {
 	router.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
 	}).Methods(http.MethodOptions)
 	router.Use(middlewareCors)
 }

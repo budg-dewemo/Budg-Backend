@@ -1,0 +1,17 @@
+# create mysql container with initial data
+version: '3.7'
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql-budg
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: N3x4.2022
+      MYSQL_DATABASE: budg
+      MYSQL_USER: test
+      MYSQL_PASSWORD: N3x4.2022
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - 3306:3306
