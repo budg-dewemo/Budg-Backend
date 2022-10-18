@@ -3,6 +3,7 @@ package models
 import (
 	"BudgBackend/src/database"
 	"fmt"
+	"strconv"
 )
 
 type IUser interface {
@@ -125,4 +126,21 @@ func (u *User) CreateUser() (int64, error) {
 		return 0, fmt.Errorf("Error creating user: ", err)
 	}
 	return id, nil
+}
+
+func (u *User) GetUser() (User, error) {
+	query := fmt.Sprintf("SELECT id, name, last_name as lastName, email, avatar, username FROM User WHERE id = %s", strconv.Itoa(u.ID))
+	rows, err := database.QueryDB(query)
+	if err != nil {
+		ErrorLogger.Println("Error getting user: ", err)
+		return User{}, fmt.Errorf("Error getting user: ", err)
+	}
+	for rows.Next() {
+		err = rows.Scan(&u.ID, &u.Name, &u.LastName, &u.Username, &u.Email, &u.AvatarLink)
+		if err != nil {
+			ErrorLogger.Println("Error getting user: ", err)
+			return User{}, fmt.Errorf("Error getting user: ", err)
+		}
+	}
+	return *u, nil
 }
