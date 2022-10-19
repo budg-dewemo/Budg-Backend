@@ -10,7 +10,7 @@ COPY ./src ./src
 RUN go mod download
 RUN env ${opts} go build -o /budg ./src/main.go
 
-FROM scratch
+FROM alpine:latest
 COPY --from=builder /budg /app/budg
 EXPOSE 8080
 CMD [ "/app/budg" ]
