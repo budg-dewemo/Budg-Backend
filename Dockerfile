@@ -11,6 +11,6 @@ RUN go mod download
 RUN env ${opts} go build -o /budg ./src/main.go
 
 FROM alpine:latest
-COPY --from=builder /budg /app/budg
+COPY --from=builder /budg /app/bin/budg
 EXPOSE 8080
-CMD [ "/app/budg" ]
+CMD [ "/app/bin/budg" ]
