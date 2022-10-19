@@ -22,9 +22,11 @@ jobs:
         env:
           DOCKER_USER: ${{ github.actor }}
           DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-          IMAGE_NAME: $(echo $REGISTRY/$REPO | tr '[:upper:]' '[:lower:]')
         run: |
           docker login ${{ env.REGISTRY }} -u $DOCKER_USER -p $DOCKER_PASSWORD
+      - name: image env in lower case
+        run: |
+          echo "IMAGE_NAME=$(echo $REGISTRY/$REPO | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       - name: Build the amd64 image
         run: docker build --build-arg opts="CGO_ENABLED=0 GOARCH=amd64" -t ${{ env.IMAGE_NAME }}:latest-amd64 .
       - name: Build the arm64 image
