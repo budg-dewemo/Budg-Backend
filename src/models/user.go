@@ -128,6 +128,11 @@ func (u *User) CreateUser() (int64, error) {
 	if u.checkUserExists() {
 		return 0, fmt.Errorf("User already exists")
 	}
+	pswHashed, errHash := hashing.HashPassword(u.Password)
+	if errHash != nil {
+		return 0, fmt.Errorf("Error hashing password")
+	}
+	u.Password = pswHashed
 	query := fmt.Sprintf("INSERT INTO User (name, last_name, username, password, email, avatar, active) VALUES ('%s', '%s', '%s', '%s', '%s', '%s',1)", u.Name, u.LastName, u.Username, u.Password, u.Email, u.createAvatar())
 	id, err := database.InsertDB(query)
 	if err != nil {
