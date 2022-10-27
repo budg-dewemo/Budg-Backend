@@ -13,9 +13,9 @@ func GetUserPreferences(w http.ResponseWriter, r *http.Request) {
 	response := responses.UserPreferencesResponse{}
 
 	if errToken != nil {
-		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
 	}
 	category := models.Category{}
 	categories, errCategory := category.GetCategories(user.ID)
@@ -25,14 +25,13 @@ func GetUserPreferences(w http.ResponseWriter, r *http.Request) {
 	response.User = userInfo
 
 	if errCategory != nil || errUser != nil {
-		json.NewEncoder(w).Encode(responses.Exception{Message: errCategory.Error()})
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(responses.Exception{Message: errCategory.Error()})
 		return
 	}
-
-	json.NewEncoder(w).Encode(response)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
 	return
 }

@@ -54,9 +54,9 @@ CREATE TABLE Expense (
 -- EXAMPLE DATA
 -- Create User
 INSERT INTO User (name, last_name,username, email, password, last_login, active)
-VALUES ('admin', 'admin', 'admin@admin', 'admin@admin.com', '123', '2022-01-01 00:00:00', 1);
+VALUES ('admin', 'admin', 'admin@admin', 'admin@admin.com', '$2a$09$0BxHCT2cE/V3JurhuJQKM.vN4FrFKExYldvmvBWLpJGSGTULJO2iS', '2022-01-01 00:00:00', 1);
 INSERT INTO User (name, last_name,username, email, password, last_login, active)
-VALUES ('John', 'Smith', 'johnsmith', 'johnsmith@gmail.com', '123', '2022-01-01 00:00:00', 1);
+VALUES ('John', 'Smith', 'johnsmith', 'johnsmith@gmail.com', '$2a$09$0BxHCT2cE/V3JurhuJQKM.vN4FrFKExYldvmvBWLpJGSGTULJO2iS', '2022-01-01 00:00:00', 1);
 
 -- Create Budget
 INSERT INTO Budget (user_id,name, amount, start_date, end_date, current_budget)

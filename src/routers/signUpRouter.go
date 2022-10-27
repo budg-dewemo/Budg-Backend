@@ -5,7 +5,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func UserRouter(r *mux.Router) *mux.Router {
+func SignUpRouter(r *mux.Router) *mux.Router {
 	u := r.PathPrefix("").Subrouter()
 	// allow CORS
 	u.Use(mux.CORSMethodMiddleware(u))

@@ -11,6 +11,6 @@ RUN env ${opts} go build -o /budg ./src/main.go
 
 FROM alpine:latest
 COPY --from=builder /budg /app/bin/budg
-COPY app.env /app.env
+COPY docker.env /app.env
 EXPOSE 8080
 CMD [ "/app/bin/budg" ]
