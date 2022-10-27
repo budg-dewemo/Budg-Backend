@@ -20,18 +20,19 @@ func init() {
 
 func Routers() *mux.Router {
 	r := mux.NewRouter().StrictSlash(true)
+
 	auth := r.PathPrefix("/api/authenticate").Subrouter()
 	expenses := r.PathPrefix("/api/expenses").Subrouter()
 	signup := r.PathPrefix("/api/signup").Subrouter()
 	categories := r.PathPrefix("/api/categories").Subrouter()
 	userPreferences := r.PathPrefix("/api/userPreferences").Subrouter()
-	enableCORS(r)
+	//enableCORS(r)
 	InfoLogger.Println("CORS enabled")
 	AuthRouter(auth)
 	InfoLogger.Println("Auth router enabled at /api/authenticate")
 	TransactionRouter(expenses)
 	InfoLogger.Println("Expense router enabled at /api/expenses")
-	UserRouter(signup)
+	SignUpRouter(signup)
 	InfoLogger.Println("User router enabled at /api/signup")
 	CategoriesRouter(categories)
 	InfoLogger.Println("Category router enabled at /api/categories")
@@ -42,7 +43,6 @@ func Routers() *mux.Router {
 
 func enableCORS(router *mux.Router) {
 	router.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
 	}).Methods(http.MethodOptions)
 	router.Use(middlewareCors)
 }
@@ -51,7 +51,7 @@ func middlewareCors(next http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, req *http.Request) {
 			// Just put some headers to allow CORS...
-			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")

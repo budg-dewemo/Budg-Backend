@@ -9,6 +9,7 @@ func UserPreferencesRouter(r *mux.Router) *mux.Router {
 	i := r.PathPrefix("").Subrouter()
 	// allow CORS
 	i.Use(mux.CORSMethodMiddleware(i))
-	i.HandleFunc("", controllers.ValidateMiddleware(controllers.GetUserPreferences)).Methods("GET")
+	i.HandleFunc("", controllers.GetUserPreferences).Methods("GET")
+
 	return i
 }
