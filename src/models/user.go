@@ -2,6 +2,7 @@ package models
 
 import (
 	"BudgBackend/src/database"
+	"BudgBackend/src/hashing"
 	"fmt"
 	"strconv"
 )
@@ -87,25 +88,33 @@ func (u *User) ValidateLogin() (bool, error) {
 	if !u.checkActiveUser() {
 		return false, fmt.Errorf("User is not active")
 	}
-	query := fmt.Sprintf("SELECT id FROM User WHERE username = '%s' AND password = '%s'", u.Username, u.Password)
+	query := fmt.Sprintf("SELECT password FROM User WHERE username = '%s'", u.Username)
 	rows, err := database.QueryDB(query)
 	if err != nil {
 		fmt.Println(err)
 	}
 	i := 0
+	var hashFromBD string
 	for rows.Next() {
 		i++
-		err = rows.Scan(&u.ID)
+		err = rows.Scan(&hashFromBD)
 		if err != nil {
 			fmt.Println(err)
 		}
 	}
+	// si obtengo 0 resultados, no existe el usuario
 	if i == 0 {
 		WarningLogger.Println("Error validate login: ", u.Username)
 		return false, fmt.Errorf("Password error")
 	}
+	// si obtengo 1 resultado, valido el hash
 	if i == 1 {
-		return true, nil
+		if u.validateHash(hashFromBD) {
+			return true, nil
+		} else {
+			WarningLogger.Println("Error validate login: ", u.Username)
+			return false, fmt.Errorf("Password error")
+		}
 	}
 	ErrorLogger.Println("Multiple users with username: ", u.Username)
 	return false, fmt.Errorf("Multiple users with username: %s", u.Username)
@@ -143,4 +152,8 @@ func (u *User) GetUser() (User, error) {
 		}
 	}
 	return *u, nil
+}
+
+func (u *User) validateHash(hashFromBD string) bool {
+	return hashing.CheckPasswordHash(u.Password, hashFromBD)
 }
