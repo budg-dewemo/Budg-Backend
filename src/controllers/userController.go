@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"BudgBackend/src/hashing"
 	"BudgBackend/src/models"
 	"BudgBackend/src/responses"
 	"encoding/json"
@@ -22,14 +21,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
 		return
 	}
-	pswHashed, errHash := hashing.HashPassword(user.Password)
-	if errHash != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errHash.Error()})
-		return
-	}
-	user.Password = pswHashed
 
 	id, errCreate := user.CreateUser()
 	if err != nil {
