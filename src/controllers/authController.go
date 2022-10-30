@@ -32,6 +32,13 @@ func CreateToken(w http.ResponseWriter, r *http.Request) {
 	// Get the JSON body and decode into credentials
 	_ = json.NewDecoder(r.Body).Decode(&user)
 
+	if user.Username == "" || user.Password == "" {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Username and password are required"})
+		return
+	}
+
 	okLogin, errLogin := user.ValidateLogin()
 	if errLogin != nil {
 		w.Header().Set("Content-Type", "application/json")
@@ -54,6 +61,9 @@ func CreateToken(w http.ResponseWriter, r *http.Request) {
 		if error != nil {
 			fmt.Println(error)
 		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(models.JwtToken{Token: tokenString})
 
 	}
