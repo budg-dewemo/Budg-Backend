@@ -26,7 +26,8 @@ func (c *Category) GetCategories(userId int) ([]Category, error) {
 	query := fmt.Sprintf("SELECT id as id, user_id as userId, name as name FROM Category WHERE user_id = %d or user_id = 1", userId)
 	rows, err := database.QueryDB(query)
 	if err != nil {
-		fmt.Println(err)
+		ErrorLogger.Println("Error getting categories: ", err)
+		return categories, err
 	}
 
 	i := 0
@@ -35,7 +36,7 @@ func (c *Category) GetCategories(userId int) ([]Category, error) {
 		var category Category
 		err = rows.Scan(&category.Id, &category.UserId, &category.Name)
 		if err != nil {
-			fmt.Println(err)
+			ErrorLogger.Println("Error scanning categories: ", err)
 		}
 		categories = append(categories, category)
 	}
