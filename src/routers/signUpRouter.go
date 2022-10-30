@@ -3,6 +3,7 @@ package routers
 import (
 	"BudgBackend/src/controllers"
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
 func SignUpRouter(r *mux.Router) *mux.Router {
@@ -10,5 +11,6 @@ func SignUpRouter(r *mux.Router) *mux.Router {
 	// allow CORS
 	u.Use(mux.CORSMethodMiddleware(u))
 	u.HandleFunc("", controllers.CreateUser).Methods("POST")
+	u.MethodNotAllowedHandler = http.HandlerFunc(MethodNotAllowed)
 	return u
 }

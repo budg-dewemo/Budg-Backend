@@ -3,15 +3,17 @@ package routers
 import (
 	"BudgBackend/src/controllers"
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
 func CategoriesRouter(r *mux.Router) *mux.Router {
-	i := r.PathPrefix("").Subrouter()
+	c := r.PathPrefix("").Subrouter()
 	// allow CORS
-	i.Use(mux.CORSMethodMiddleware(i))
-	i.HandleFunc("", controllers.GetCategories).Methods("GET")
+	c.Use(mux.CORSMethodMiddleware(c))
+	c.HandleFunc("", controllers.GetCategories).Methods("GET")
 	//i.HandleFunc("/{id}", controllers.GetExpense).Methods("GET")
 	//i.HandleFunc("", controllers.CreateCategory).Methods("POST")
 	//i.HandleFunc("/{id}", controllers.DeleteExpense).Methods("DELETE")
-	return i
+	c.MethodNotAllowedHandler = http.HandlerFunc(MethodNotAllowed)
+	return c
 }

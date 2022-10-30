@@ -3,13 +3,14 @@ package routers
 import (
 	"BudgBackend/src/controllers"
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
 func UserPreferencesRouter(r *mux.Router) *mux.Router {
-	i := r.PathPrefix("").Subrouter()
+	u := r.PathPrefix("").Subrouter()
 	// allow CORS
-	i.Use(mux.CORSMethodMiddleware(i))
-	i.HandleFunc("", controllers.GetUserPreferences).Methods("GET")
-
-	return i
+	u.Use(mux.CORSMethodMiddleware(u))
+	u.HandleFunc("", controllers.GetUserPreferences).Methods("GET")
+	u.MethodNotAllowedHandler = http.HandlerFunc(MethodNotAllowed)
+	return u
 }
