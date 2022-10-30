@@ -88,7 +88,7 @@ func (u *User) ValidateLogin() (bool, error) {
 	if !u.checkActiveUser() {
 		return false, fmt.Errorf("User is not active")
 	}
-	query := fmt.Sprintf("SELECT password FROM User WHERE username = '%s'", u.Username)
+	query := fmt.Sprintf("SELECT id,password FROM User WHERE username = '%s'", u.Username)
 	rows, err := database.QueryDB(query)
 	if err != nil {
 		fmt.Println(err)
@@ -97,7 +97,7 @@ func (u *User) ValidateLogin() (bool, error) {
 	var hashFromBD string
 	for rows.Next() {
 		i++
-		err = rows.Scan(&hashFromBD)
+		err = rows.Scan(&u.ID, &hashFromBD)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -143,6 +143,7 @@ func (u *User) CreateUser() (int64, error) {
 }
 
 func (u *User) GetUser() (User, error) {
+
 	query := fmt.Sprintf("SELECT id, name, last_name as lastName, email, avatar, username FROM User WHERE id = %s", strconv.Itoa(u.ID))
 	rows, err := database.QueryDB(query)
 	if err != nil {
@@ -156,6 +157,8 @@ func (u *User) GetUser() (User, error) {
 			return User{}, fmt.Errorf("Error getting user: ", err)
 		}
 	}
+
+	fmt.Println(*u)
 	return *u, nil
 }
 

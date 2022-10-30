@@ -5,11 +5,11 @@ import (
 	"fmt"
 )
 
-type ITransaction interface {
-	GetExpenses(userId int) []Expense
-	GetExpense(id string) Expense
-	CreateExpense(userId int, budgetId int, amount float32, description string, categoryId int) Expense
-	DeleteExpense(id int) Expense
+type IExpense interface {
+	GetExpenses(userId int) ([]Expense, error)
+	GetExpense(id string) (Expense, error)
+	CreateExpense(userId int, budgetId int, amount float32, description string, categoryId int) (Expense, error)
+	DeleteExpense(id int) (Expense, error)
 }
 
 type Expense struct {
@@ -51,10 +51,10 @@ func (t *Expense) GetExpenses(userId int) ([]Expense, error) {
 	return expenses, nil
 }
 
-func (t *Expense) GetExpense(id int) (Expense, error) {
+func (t *Expense) GetExpense(userID int, expenseID int) (Expense, error) {
 	var transaction Expense
-	InfoLogger.Println("Getting transaction with id: ", id)
-	query := fmt.Sprintf("SELECT id as id, user_id as userId, budget_id as budgetId, amount as amount, description as description, category_id as categoryId, date as date FROM Expense WHERE id = %d", id)
+	InfoLogger.Println("Getting expense with id: ", expenseID)
+	query := fmt.Sprintf("SELECT id as id, user_id as userId, budget_id as budgetId, amount as amount, description as description, category_id as categoryId, date as date FROM Expense WHERE id = %d and user_id = %d", expenseID, userID)
 	rows, err := database.QueryDB(query)
 	if err != nil {
 		fmt.Println(err)
@@ -69,28 +69,15 @@ func (t *Expense) GetExpense(id int) (Expense, error) {
 	}
 
 	if i == 0 {
-		return Expense{}, fmt.Errorf("No transaction with id: %d", id)
+		return Expense{}, fmt.Errorf("Expense %d not found", expenseID)
 	}
 	if i == 1 {
 		return transaction, nil
 	}
-	ErrorLogger.Println("Multiple transactions with id: ", id)
-	return Expense{}, fmt.Errorf("Multiple transactions with id: %d", id)
+	ErrorLogger.Println("Expense not found", expenseID)
+	return Expense{}, fmt.Errorf("Multiple expenses with id %d", expenseID)
 
 }
-
-//func (t *Expense) CreateExpense(userId int, budgetId int, amount float32, description string, categoryId int) (int64, error) {
-//	//transaction := Expense{UserId: userId, BudgetId: budgetId, Amount: amount, Description: description, CategoryId: categoryId}
-//	insert := fmt.Sprintf("INSERT INTO expense (user_id, budget_id, amount, description, category_id,date) VALUES (%d, %d, %f, '%s', %d,CURDATE())", userId, budgetId, amount, description, categoryId)
-//	id, err := database.InsertDB(insert)
-//	if err != nil {
-//		ErrorLogger.Println("Error creating transaction: ", err)
-//		return 0, err
-//
-//	}
-//
-//	return id, nil
-//}
 
 func (t *Expense) CreateExpense() (int64, error) {
 	//transaction := Expense{UserId: userId, BudgetId: budgetId, Amount: amount, Description: description, CategoryId: categoryId}
@@ -105,12 +92,13 @@ func (t *Expense) CreateExpense() (int64, error) {
 	return id, nil
 }
 
-func (t *Expense) DeleteExpense(id int) Expense {
-	for index, transaction := range Transactions {
-		if transaction.CategoryId == id {
-			Transactions = append(Transactions[:index], Transactions[index+1:]...)
-			return transaction
-		}
+func (e *Expense) DeleteExpense(id int) (int64, error) {
+
+	query := fmt.Sprintf("DELETE FROM Expense WHERE id = %d and user_id = %d", id, e.UserId)
+	_, err := database.DeleteDB(query)
+	if err != nil {
+		ErrorLogger.Println("Error deleting transaction: ", err)
+		return 0, err
 	}
-	return Expense{}
+	return int64(e.Id), nil
 }
