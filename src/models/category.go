@@ -13,9 +13,10 @@ type ICategory interface {
 }
 
 type Category struct {
-	Id     int    `json:"id"`
-	UserId int    `json:"userId"`
-	Name   string `json:"name"`
+	Id      int    `json:"id"`
+	UserId  int    `json:"userId"`
+	Name    string `json:"name"`
+	Default bool   `json:"default"`
 }
 
 var Categories []Category
@@ -37,6 +38,11 @@ func (c *Category) GetCategories(userId int) ([]Category, error) {
 		err = rows.Scan(&category.Id, &category.UserId, &category.Name)
 		if err != nil {
 			ErrorLogger.Println("Error scanning categories: ", err)
+		}
+		if category.UserId == 1 {
+			category.Default = true
+		} else {
+			category.Default = false
 		}
 		categories = append(categories, category)
 	}

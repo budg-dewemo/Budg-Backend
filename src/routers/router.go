@@ -32,7 +32,7 @@ func Routers() *mux.Router {
 	categories := v1.PathPrefix("/categories").Subrouter()
 	userPreferences := v1.PathPrefix("/userPreferences").Subrouter()
 	r.NotFoundHandler = http.HandlerFunc(NotFound)
-	//enableCORS(r)
+	enableCORS(r)
 	InfoLogger.Println("CORS enabled")
 
 	AuthRouter(auth)

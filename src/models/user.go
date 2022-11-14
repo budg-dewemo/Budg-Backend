@@ -151,7 +151,7 @@ func (u *User) GetUser() (User, error) {
 		return User{}, fmt.Errorf("Error getting user: ", err)
 	}
 	for rows.Next() {
-		err = rows.Scan(&u.ID, &u.Name, &u.LastName, &u.Username, &u.Email, &u.AvatarLink)
+		err = rows.Scan(&u.ID, &u.Name, &u.LastName, &u.Email, &u.AvatarLink, &u.Username)
 		if err != nil {
 			ErrorLogger.Println("Error getting user: ", err)
 			return User{}, fmt.Errorf("Error getting user: ", err)
