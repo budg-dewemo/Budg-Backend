@@ -22,6 +22,7 @@ func init() {
 
 func Routers() *mux.Router {
 	r := mux.NewRouter().StrictSlash(true)
+	enableCORS(r)
 
 	//api version 1
 	v1 := r.PathPrefix("/api/v1").Subrouter()
@@ -32,7 +33,6 @@ func Routers() *mux.Router {
 	categories := v1.PathPrefix("/categories").Subrouter()
 	userPreferences := v1.PathPrefix("/userPreferences").Subrouter()
 	r.NotFoundHandler = http.HandlerFunc(NotFound)
-	enableCORS(r)
 	InfoLogger.Println("CORS enabled")
 
 	AuthRouter(auth)
@@ -55,9 +55,16 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 }
 
 func MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusMethodNotAllowed)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(responses.Exception{Message: "method not allowed"})
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(responses.Exception{Message: "method not allowed"})
+	}
+	//w.WriteHeader(http.StatusMethodNotAllowed)
+	//w.Header().Set("Content-Type", "application/json")
+	//json.NewEncoder(w).Encode(responses.Exception{Message: "method not allowed"})
 }
 
 func enableCORS(router *mux.Router) {
