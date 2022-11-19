@@ -9,23 +9,22 @@ import (
 	"strconv"
 )
 
-type CreateExpenseResponse struct {
+type CreateTransactionResponse struct {
 	ID     int    `json:"id"`
 	Status string `json:"status"`
 }
 
-func GetExpenses(w http.ResponseWriter, r *http.Request) {
+func GetTransactions(w http.ResponseWriter, r *http.Request) {
 
 	user, errToken := validateToken(r)
-
 	if errToken != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
 		return
 	}
-	expense := models.Expense{}
-	exp, err := expense.GetExpenses(user.ID)
+	transaction := models.Transaction{}
+	exp, err := transaction.GetTransactions(user.ID)
 
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
@@ -39,9 +38,9 @@ func GetExpenses(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func GetExpense(w http.ResponseWriter, r *http.Request) {
+func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	user, errToken := validateToken(r)
-	expenseID, getIdErr := strconv.Atoi(mux.Vars(r)["id"])
+	transactionID, getIdErr := strconv.Atoi(mux.Vars(r)["id"])
 
 	if getIdErr != nil {
 		w.Header().Set("Content-Type", "application/json")
@@ -56,8 +55,8 @@ func GetExpense(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
 		return
 	}
-	expense := models.Expense{}
-	exp, err := expense.GetExpense(user.ID, expenseID)
+	transaction := models.Transaction{}
+	exp, err := transaction.GetTransaction(user.ID, transactionID)
 
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
@@ -71,8 +70,8 @@ func GetExpense(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// create expense
-func CreateExpense(w http.ResponseWriter, r *http.Request) {
+// create transaction
+func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	user, errToken := validateToken(r)
 
 	if errToken != nil {
@@ -81,8 +80,8 @@ func CreateExpense(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
 	}
 
-	expense := models.Expense{}
-	err := json.NewDecoder(r.Body).Decode(&expense)
+	transaction := models.Transaction{}
+	err := json.NewDecoder(r.Body).Decode(&transaction)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -90,15 +89,15 @@ func CreateExpense(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if expense.Amount <= 0 || expense.BudgetId <= 0 || expense.CategoryId <= 0 || expense.Description == "" || expense.Date == "" {
+	if transaction.Amount <= 0 || transaction.BudgetId <= 0 || transaction.CategoryId <= 0 || transaction.Description == "" || transaction.Date == "" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(responses.Exception{Message: "Invalid expense format expected: {\"amount\": , \"budgetId\": , \"categoryId\": , \"description\": \"\", \"date\": \"\"}"})
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Invalid transaction format expected: {\"amount\": , \"budgetId\": , \"categoryId\": , \"description\": \"\", \"date\": \"\"}"})
 		return
 	}
 
-	expense.UserId = user.ID
-	exp, err := expense.CreateExpense()
+	transaction.UserId = user.ID
+	exp, err := transaction.CreateTransaction()
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -107,11 +106,11 @@ func CreateExpense(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(CreateExpenseResponse{ID: int(exp), Status: "Expense created"})
+	json.NewEncoder(w).Encode(CreateTransactionResponse{ID: int(exp), Status: "transaction created"})
 	return
 }
 
-func DeleteExpense(w http.ResponseWriter, r *http.Request) {
+func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 	user, errToken := validateToken(r)
 
 	if errToken != nil {
@@ -120,8 +119,8 @@ func DeleteExpense(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
 	}
 
-	expense := models.Expense{}
-	expenseID, getIdErr := strconv.Atoi(mux.Vars(r)["id"])
+	transaction := models.Transaction{}
+	transactionID, getIdErr := strconv.Atoi(mux.Vars(r)["id"])
 
 	if getIdErr != nil {
 		w.Header().Set("Content-Type", "application/json")
@@ -130,8 +129,8 @@ func DeleteExpense(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	expense.UserId = user.ID
-	_, err := expense.DeleteExpense(expenseID)
+	transaction.UserId = user.ID
+	_, err := transaction.DeleteTransaction(transactionID)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -140,6 +139,6 @@ func DeleteExpense(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(CreateExpenseResponse{ID: int(expenseID), Status: "Expense deleted"})
+	json.NewEncoder(w).Encode(CreateTransactionResponse{ID: int(transactionID), Status: "transaction deleted"})
 	return
 }

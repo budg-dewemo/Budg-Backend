@@ -52,10 +52,11 @@ func CreateToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if okLogin {
+		expiration := time.Now().Add(time.Hour * time.Duration(1)).Unix()
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"username": user.Username,
 			"id":       user.ID,
-			"exp":      time.Now().Add(time.Hour * time.Duration(1)).Unix(),
+			"exp":      expiration,
 		})
 		tokenString, error := token.SignedString(jwtToken)
 		if error != nil {
@@ -64,7 +65,16 @@ func CreateToken(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(models.JwtToken{Token: tokenString})
+
+		////create response with token and expiration
+		//response := responses.TokenResponse{Token: tokenString, Expiration: expiration}
+		//err := json.NewEncoder(w).Encode(response)
+		//if err != nil {
+		//	fmt.Println(err)
+		//	return
+		//}
+
+		json.NewEncoder(w).Encode(models.JwtToken{Token: tokenString, Expiration: expiration})
 
 	}
 }

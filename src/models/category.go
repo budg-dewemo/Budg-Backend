@@ -6,10 +6,10 @@ import (
 )
 
 type ICategory interface {
-	GetCategories(userId int) []Expense
-	GetCategory(id string) Expense
-	CreateCategory(userId int, name string) Expense
-	DeleteCategory(id int) Expense
+	GetCategories(userId int) []Transaction
+	GetCategory(id string) Transaction
+	CreateCategory(userId int, name string) Transaction
+	DeleteCategory(id int) Transaction
 }
 
 type Category struct {
