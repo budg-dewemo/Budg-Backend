@@ -29,15 +29,25 @@ jobs:
         run: docker build --build-arg opts="CGO_ENABLED=0 GOARCH=amd64" -t ${{ env.IMAGE_NAME }}:latest-amd64 .
       - name: Build the arm64 image
         run: docker build --build-arg opts="GOARCH=arm64 GOARM=7" -t ${{ env.IMAGE_NAME }}:latest-arm64v7 .
+      - name: Tag with short SHA
+        run: |
+          docker tag ${{ env.IMAGE_NAME }}:latest-amd64 ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker tag ${{ env.IMAGE_NAME }}:latest-arm64v7 ${{ env.IMAGE_NAME }}:${{ github.sha }}-arm64v7
 
       - name: Docker Push amd64
         run: docker push ${{ env.IMAGE_NAME }}:latest-amd64
       - name: Docker Push arm64v7
         run: docker push ${{ env.IMAGE_NAME }}:latest-arm64v7
+      - name: Docker Push short SHA
+        run: |
+          docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}-arm64v7
 
-#      - name: Deploy to Kubernetes cluster
-#        uses: kodermax/kubectl-aws-eks@master
-#        env:
-#          RELEASE_IMAGE: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.RELEASE_REVISION }}
-#        with:
-#          args: set image deployment/my-pod app=${{ env.RELEASE_IMAGE }} --record -n $KUBE_NAMESPACE
+      - name: Deploy to Kubernetes cluster
+        uses: kodermax/kubectl-aws-eks@master
+        env:
+          RELEASE_IMAGE: ${{ env.IMAGE_NAME }}:${{ github.sha }}-arm64v7
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+          KUBE_NAMESPACE: budg
+        with:
+          args: set image deployment/budg-backend-api budg-backend-api=${{ env.RELEASE_IMAGE }} --record -n $KUBE_NAMESPACE
