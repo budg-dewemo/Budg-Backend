@@ -12,7 +12,7 @@ func CategoriesRouter(r *mux.Router) *mux.Router {
 	c.Use(mux.CORSMethodMiddleware(c))
 	c.HandleFunc("", controllers.GetCategories).Methods("GET")
 	//i.HandleFunc("/{id}", controllers.GetExpense).Methods("GET")
-	//i.HandleFunc("", controllers.CreateCategory).Methods("POST")
+	c.HandleFunc("", controllers.CreateCategory).Methods("POST")
 	//i.HandleFunc("/{id}", controllers.DeleteExpense).Methods("DELETE")
 	c.MethodNotAllowedHandler = http.HandlerFunc(MethodNotAllowed)
 	return c

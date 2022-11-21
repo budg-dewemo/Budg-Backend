@@ -52,3 +52,15 @@ func (c *Category) GetCategories(userId int) ([]Category, error) {
 	}
 	return categories, nil
 }
+
+func (c *Category) CreateCategory() (int64, error) {
+	InfoLogger.Println("Creating category")
+	// check if category with same name exists
+	query := fmt.Sprintf("INSERT INTO Category (user_id, name) VALUES (%d, '%s')", c.UserId, c.Name)
+	id, err := database.InsertDB(query)
+	if err != nil {
+		ErrorLogger.Println("Error creating category: ", err)
+		return id, err
+	}
+	return id, nil
+}

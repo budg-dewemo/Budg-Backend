@@ -44,7 +44,7 @@ func checkIfUserExists(userId int) bool {
 	}
 }
 
-func (b *Budget) GetCurrentBalance(userId int) (Budget, error) {
+func (b *Budget) GetCurrentBudget(userId int) (Budget, error) {
 	if checkIfUserExists(userId) {
 		var budget Budget
 		InfoLogger.Println("Getting current balance for user with id: ", userId)
@@ -76,5 +76,51 @@ func (b *Budget) GetCurrentBalance(userId int) (Budget, error) {
 	} else {
 		ErrorLogger.Println("User with id: ", userId, " does not exist")
 		return Budget{}, fmt.Errorf("User with id: %d does not exist or is not active", userId)
+	}
+}
+
+func (b *Budget) CreateBudget() (int64, error) {
+	if checkIfUserExists(b.UserId) {
+		InfoLogger.Println("Creating budget for user with id: ", b.UserId)
+		query := fmt.Sprintf("INSERT INTO Budget (name, user_id, amount, start_date, end_date, current_budget) VALUES ('%s', %d, %f, '%s', '%s', false)", b.Name, b.UserId, b.Amount, b.StartDate, b.EndDate)
+		res, err := database.InsertDB(query)
+		if err != nil {
+			ErrorLogger.Println("Error creating budget: ", err)
+			return -1, err
+		}
+		b.changeCurrentBudget(res)
+		return res, nil
+	} else {
+		ErrorLogger.Println("User with id: ", b.UserId, " does not exist")
+		return -1, fmt.Errorf("User with id: %d does not exist or is not active", b.UserId)
+	}
+
+}
+
+func (b *Budget) changeCurrentBudget(budgetID int64) (string, error) {
+	if checkIfUserExists(b.UserId) {
+		InfoLogger.Println("Changing current budget for user with id: ", b.UserId)
+		actualBudget, err := b.GetCurrentBudget(b.UserId)
+		if err != nil {
+			ErrorLogger.Println("Error getting current budget: ", err)
+			return "", err
+		}
+		query := fmt.Sprintf("UPDATE Budget SET current_budget = false WHERE id = %d", actualBudget.BudgetId)
+		_, err = database.UpdateDB(query)
+		if err != nil {
+			ErrorLogger.Println("Error changing current budget: ", err)
+			return "", err
+		}
+		query = fmt.Sprintf("UPDATE Budget SET current_budget = true WHERE id = %d", budgetID)
+		_, err = database.UpdateDB(query)
+		if err != nil {
+			ErrorLogger.Println("Error changing current budget: ", err)
+			return "", err
+		}
+		return "Current budget changed", nil
+
+	} else {
+		ErrorLogger.Println("User with id: ", b.UserId, " does not exist")
+		return "", fmt.Errorf("User with id: %d does not exist or is not active", b.UserId)
 	}
 }
