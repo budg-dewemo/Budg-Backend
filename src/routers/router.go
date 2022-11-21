@@ -77,7 +77,7 @@ func middlewareCors(next http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, req *http.Request) {
 			// Just put some headers to allow CORS...
-			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200, https://budg.nicocartalla.com")
+			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
