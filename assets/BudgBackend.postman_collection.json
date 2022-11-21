@@ -15,6 +15,7 @@
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
 							"});",
+							"",
 							"const response = pm.response.json();",
 							"pm.environment.set('token', response.token);"
 						],
@@ -43,6 +44,134 @@
 						"api",
 						"v1",
 						"authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Budget",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require('moment');",
+							"var currentdate =  moment().format((\"YYYY-MM-DD\"));",
+							"pm.environment.set('currentdate', currentdate);",
+							"pm.environment.set('endDate',moment(currentdate).add(1,'M').format((\"YYYY-MM-DD\")));",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"const response = pm.response.json();",
+							"pm.environment.set(\"created_budget_id\", response.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Test budget\",\n    \"amount\": 30000,\n    \"startDate\": \"{{currentdate}}\",\n    \"endDate\": \"{{endDate}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/api/v1/budget",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"budget"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Current Budget",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"The response has all properties\", () => {",
+							"    const expectedBudget = pm.variables.get(\"created_budget_id\")",
+							"    const response = pm.response.json();",
+							"    pm.expect(response.budgetId).to.eql(expectedBudget);",
+							"});",
+							"",
+							"const response = pm.response.json();",
+							"pm.environment.set(\"current_budget_id\", response.budgetId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{host}}/api/v1/budget",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"budget"
 					]
 				}
 			},
@@ -95,7 +224,7 @@
 			"response": []
 		},
 		{
-			"name": "Get Expenses",
+			"name": "Get Transactions",
 			"event": [
 				{
 					"listen": "test",
@@ -123,14 +252,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{host}}/api/v1/expenses",
+					"raw": "{{host}}/api/v1/transactions",
 					"host": [
 						"{{host}}"
 					],
 					"path": [
 						"api",
 						"v1",
-						"expenses"
+						"transactions"
 					]
 				}
 			},
@@ -179,17 +308,17 @@
 			"response": []
 		},
 		{
-			"name": "Create Expense",
+			"name": "CreateCategory",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
+							"pm.test(\"Status code is 201\", function () {",
 							"    pm.response.to.have.status(201);",
 							"});",
 							"const response = pm.response.json();",
-							"pm.environment.set(\"created_expense_id\", response.id);"
+							"pm.environment.set(\"created_category_id\", response.id);"
 						],
 						"type": "text/javascript"
 					}
@@ -201,7 +330,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjcwODkxMDcsImlkIjoyLCJ1c2VybmFtZSI6ImpvaG5zbWl0aCJ9.91wVpUB7gFF_tRPHD_oDKy8eoFAI_FSRV6jVBE-J1ak",
+							"value": "{{token}}",
 							"type": "string"
 						}
 					]
@@ -210,7 +339,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"budgetId\": 1,\n  \"amount\": 100,\n  \"description\": \"prueba\",\n  \"categoryId\": 3,\n  \"date\": \"2018-01-01 00:00:00\"\n}",
+					"raw": "{\n    \"name\": \"test category {{$randomAbbreviation}}\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -218,21 +347,83 @@
 					}
 				},
 				"url": {
-					"raw": "{{host}}/api/v1/expenses",
+					"raw": "{{host}}/api/v1/categories",
 					"host": [
 						"{{host}}"
 					],
 					"path": [
 						"api",
 						"v1",
-						"expenses"
+						"categories"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Get Expense By ID",
+			"name": "Create Transaction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"const response = pm.response.json();",
+							"pm.environment.set(\"created_expense_id\", response.id);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"budgetId\": {{current_budget_id}},\n  \"amount\": 100,\n  \"description\": \"prueba\",\n  \"categoryId\": {{created_category_id}},\n  \"date\": \"2018-01-01 00:00:00\",\n  \"type\": \"expense\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/api/v1/transactions",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Transaction By ID",
 			"event": [
 				{
 					"listen": "test",
@@ -261,14 +452,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{host}}/api/v1/expenses/{{created_expense_id}}",
+					"raw": "{{host}}/api/v1/transactions/{{created_expense_id}}",
 					"host": [
 						"{{host}}"
 					],
 					"path": [
 						"api",
 						"v1",
-						"expenses",
+						"transactions",
 						"{{created_expense_id}}"
 					]
 				}
@@ -276,7 +467,7 @@
 			"response": []
 		},
 		{
-			"name": "Delete Expense",
+			"name": "Delete Transaction",
 			"event": [
 				{
 					"listen": "test",
@@ -286,7 +477,7 @@
 							"    pm.response.to.have.status(200);",
 							"});",
 							"pm.test(\"Body matches string\", function () {",
-							"    pm.expect(pm.response.text()).to.include(\"Expense deleted\");",
+							"    pm.expect(pm.response.text()).to.include(\"transaction deleted\");",
 							"});",
 							""
 						],
@@ -300,7 +491,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjcwODkxMDcsImlkIjoyLCJ1c2VybmFtZSI6ImpvaG5zbWl0aCJ9.91wVpUB7gFF_tRPHD_oDKy8eoFAI_FSRV6jVBE-J1ak",
+							"value": "{{token}}",
 							"type": "string"
 						}
 					]
@@ -308,19 +499,39 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{host}}/api/v1/expenses/{{created_expense_id}}",
+					"raw": "{{host}}/api/v1/transactions/{{created_expense_id}}",
 					"host": [
 						"{{host}}"
 					],
 					"path": [
 						"api",
 						"v1",
-						"expenses",
+						"transactions",
 						"{{created_expense_id}}"
 					]
 				}
 			},
 			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
 		}
 	],
 	"variable": [
@@ -331,6 +542,12 @@
 		{
 			"key": "host",
 			"value": "localhost:8080"
+		},
+		{
+			"key": "host",
+			"value": "https://budg-api.nicocartalla.com",
+			"type": "default",
+			"disabled": true
 		}
 	]
 }

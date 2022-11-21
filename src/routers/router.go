@@ -32,6 +32,7 @@ func Routers() *mux.Router {
 	signup := v1.PathPrefix("/signup").Subrouter()
 	categories := v1.PathPrefix("/categories").Subrouter()
 	userPreferences := v1.PathPrefix("/userPreferences").Subrouter()
+	budget := v1.PathPrefix("/budget").Subrouter()
 	r.NotFoundHandler = http.HandlerFunc(NotFound)
 	InfoLogger.Println("CORS enabled")
 
@@ -45,6 +46,8 @@ func Routers() *mux.Router {
 	InfoLogger.Println("Category router enabled at /api/v1/categories")
 	UserPreferencesRouter(userPreferences)
 	InfoLogger.Println("User preferences router enabled at /api/v1/userPreferences")
+	BudgetRouter(budget)
+	InfoLogger.Println("Budget router enabled at /api/v1/budget")
 	return r
 }
 
