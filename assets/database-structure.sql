@@ -134,3 +134,22 @@ SELECT b.id, SUM(e.amount)
     FROM Expense e
         INNER JOIN Budget b ON e.budget_id = b.id
     WHERE b.user_id = 2 GROUP BY b.id ORDER BY b.id DESC LIMIT 5;
+
+
+-- get sum of transactions type expense gruped by monthname for user 2
+SELECT MONTHNAME(t.date), SUM(t.amount)
+FROM User_transaction t
+         INNER JOIN Budget b ON t.budget_id = b.id
+WHERE b.user_id = 2 and t.type='expense' GROUP BY MONTHNAME(t.date) ORDER BY MONTH(t.date) DESC LIMIT 12;
+
+
+
+-- get the last week expenses for user 2 grouped by category
+SELECT c.name, SUM(e.amount)
+    FROM User_transaction e
+        INNER JOIN Category c ON e.category_id = c.id
+    WHERE e.date BETWEEN DATE_SUB(NOW(), INTERVAL 7 DAY) AND NOW()
+      AND e.type='expense' AND e.user_id=2
+    GROUP BY c.name;
+
+SELECT c.name, SUM(e.amount) FROM User_transaction e INNER JOIN Category c ON e.category_id = c.id WHERE e.date BETWEEN DATE_SUB(NOW(), INTERVAL 7 DAY) AND NOW() AND e.type='expense' AND e.user_id=2 GROUP BY c.name order by SUM(e.amount);
