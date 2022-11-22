@@ -6,9 +6,9 @@ import (
 )
 
 type ITransaction interface {
-	GetTransactions(userId int) ([]Transaction, error)
+	GetTransactions() ([]Transaction, error)
 	GetTransaction(id string) (Transaction, error)
-	CreateTransaction(userId int, budgetId int, amount float32, description string, categoryId int) (Transaction, error)
+	CreateTransaction() (Transaction, error)
 	DeleteTransaction(id int) (Transaction, error)
 }
 
@@ -26,11 +26,16 @@ type Transaction struct {
 
 var Transactions []Transaction
 
-func (t *Transaction) GetTransactions(userId int) ([]Transaction, error) {
+func (t *Transaction) GetTransactions(limit int) ([]Transaction, error) {
 	var transactions []Transaction
 	InfoLogger.Println("Getting transactions")
-	//query := fmt.Sprintf("SELECT id as id, user_id as userId, budget_id as budgetId, amount as amount, description as description, category_id as categoryId, date as date FROM User_transaction WHERE user_id = %d", userId)
-	query := fmt.Sprintf("SELECT id as Id, user_id as UserId, budget_id as BudgetId, amount as Amount, description as Description, category_id as CategoryId, date as Date FROM User_transaction WHERE user_id = %d", userId)
+	query := ""
+	if limit == -1 {
+		query = fmt.Sprintf("SELECT id as Id, user_id as UserId, budget_id as BudgetId, amount as Amount, description as Description, category_id as CategoryId, date as Date FROM User_transaction WHERE user_id = %d ORDER BY date DESC", t.UserId)
+
+	} else {
+		query = fmt.Sprintf("SELECT id as Id, user_id as UserId, budget_id as BudgetId, amount as Amount, description as Description, category_id as CategoryId, date as Date FROM User_transaction WHERE user_id = %d ORDER BY date DESC LIMIT %d", t.UserId, limit)
+	}
 	rows, err := database.QueryDB(query)
 	if err != nil {
 		fmt.Println(err)
@@ -48,15 +53,15 @@ func (t *Transaction) GetTransactions(userId int) ([]Transaction, error) {
 	}
 
 	if i == 0 {
-		return transactions, fmt.Errorf("No transactions for user with id: %d", userId)
+		return transactions, fmt.Errorf("No transactions for user with id: %d", t.UserId)
 	}
 	return transactions, nil
 }
 
-func (t *Transaction) GetTransaction(userID int, transactionID int) (Transaction, error) {
+func (t *Transaction) GetTransaction(transactionID int) (Transaction, error) {
 	var transaction Transaction
 	InfoLogger.Println("Getting transaction with id: ", transactionID)
-	query := fmt.Sprintf("SELECT id as id, user_id as userId, budget_id as budgetId, amount as amount, description as description, category_id as categoryId, date as date FROM User_transaction WHERE id = %d and user_id = %d", transactionID, userID)
+	query := fmt.Sprintf("SELECT id as id, user_id as userId, budget_id as budgetId, amount as amount, description as description, category_id as categoryId, date as date FROM User_transaction WHERE id = %d and user_id = %d", transactionID, t.UserId)
 	rows, err := database.QueryDB(query)
 	if err != nil {
 		fmt.Println(err)

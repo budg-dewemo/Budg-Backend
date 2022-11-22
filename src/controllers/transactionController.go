@@ -24,8 +24,32 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	transaction := models.Transaction{}
-	exp, err := transaction.GetTransactions(user.ID)
+	transaction.UserId = user.ID
 
+	quantity := r.URL.Query().Get("quantity")
+	if quantity != "" {
+		quantityInt, err := strconv.Atoi(quantity)
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+			return
+		}
+		transactions, error := transaction.GetTransactions(quantityInt)
+		if error != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(responses.Exception{Message: error.Error()})
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(transactions)
+		return
+	}
+
+	transactions, err := transaction.GetTransactions(-1)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -34,7 +58,7 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(exp)
+	json.NewEncoder(w).Encode(transactions)
 	return
 }
 
@@ -56,7 +80,8 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	transaction := models.Transaction{}
-	exp, err := transaction.GetTransaction(user.ID, transactionID)
+	transaction.UserId = user.ID
+	transactions, err := transaction.GetTransaction(transactionID)
 
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
@@ -66,7 +91,7 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(exp)
+	json.NewEncoder(w).Encode(transactions)
 	return
 }
 
@@ -78,6 +103,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
+		return
 	}
 
 	transaction := models.Transaction{}
@@ -97,7 +123,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	transaction.UserId = user.ID
-	exp, err := transaction.CreateTransaction()
+	trs, err := transaction.CreateTransaction()
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -106,7 +132,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(CreateTransactionResponse{ID: int(exp), Status: "transaction created"})
+	json.NewEncoder(w).Encode(CreateTransactionResponse{ID: int(trs), Status: "transaction created"})
 	return
 }
 
@@ -117,6 +143,7 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
+		return
 	}
 
 	transaction := models.Transaction{}

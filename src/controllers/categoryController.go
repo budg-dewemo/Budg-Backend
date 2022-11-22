@@ -20,6 +20,7 @@ func GetCategories(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
+		return
 	}
 	category := models.Category{}
 	categories, err := category.GetCategories(user.ID)

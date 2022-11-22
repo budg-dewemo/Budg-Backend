@@ -6,4 +6,5 @@ import "BudgBackend/src/models"
 type UserPreferencesResponse struct {
 	ExpenseCategories []models.Category `json:"expenseCategories"`
 	User              models.User       `json:"user"`
+	BudgetId          int               `json:"budgetId"`
 }

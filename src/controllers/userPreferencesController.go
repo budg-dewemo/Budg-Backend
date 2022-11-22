@@ -23,8 +23,8 @@ func GetUserPreferences(w http.ResponseWriter, r *http.Request) {
 
 	userInfo, errUser := user.GetUser()
 
-	response.ExpenseCategories = categories
-	response.User = userInfo
+	budget := models.Budget{}
+	currentBudget, errBudget := budget.GetCurrentBudget(user.ID)
 
 	if errUser != nil {
 		w.Header().Set("Content-Type", "application/json")
@@ -39,6 +39,17 @@ func GetUserPreferences(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(responses.Exception{Message: errCategory.Error()})
 		return
 	}
+	if errBudget != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(responses.Exception{Message: errBudget.Error()})
+		return
+	}
+
+	response.ExpenseCategories = categories
+	response.User = userInfo
+	response.BudgetId = currentBudget.BudgetId
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
