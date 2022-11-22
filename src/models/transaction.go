@@ -31,10 +31,10 @@ func (t *Transaction) GetTransactions(limit int) ([]Transaction, error) {
 	InfoLogger.Println("Getting transactions")
 	query := ""
 	if limit == -1 {
-		query = fmt.Sprintf("SELECT id as Id, user_id as UserId, budget_id as BudgetId, amount as Amount, description as Description, category_id as CategoryId, date as Date FROM User_transaction WHERE user_id = %d ORDER BY date DESC", t.UserId)
+		query = fmt.Sprintf("SELECT id as Id, user_id as UserId, budget_id as BudgetId, amount as Amount, description as Description, category_id as CategoryId, date as Date FROM User_transaction WHERE user_id = %d and budget_id = %d ORDER BY date DESC", t.UserId, t.BudgetId)
 
 	} else {
-		query = fmt.Sprintf("SELECT id as Id, user_id as UserId, budget_id as BudgetId, amount as Amount, description as Description, category_id as CategoryId, date as Date FROM User_transaction WHERE user_id = %d ORDER BY date DESC LIMIT %d", t.UserId, limit)
+		query = fmt.Sprintf("SELECT id as Id, user_id as UserId, budget_id as BudgetId, amount as Amount, description as Description, category_id as CategoryId, date as Date FROM User_transaction WHERE user_id = %d and budget_id = %d ORDER BY date DESC LIMIT %d", t.UserId, t.BudgetId, limit)
 	}
 	rows, err := database.QueryDB(query)
 	if err != nil {
@@ -53,7 +53,7 @@ func (t *Transaction) GetTransactions(limit int) ([]Transaction, error) {
 	}
 
 	if i == 0 {
-		return transactions, fmt.Errorf("No transactions for user with id: %d", t.UserId)
+		return transactions, nil
 	}
 	return transactions, nil
 }
