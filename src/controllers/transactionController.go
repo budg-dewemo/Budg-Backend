@@ -23,8 +23,18 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
 		return
 	}
+	budget := models.Budget{}
+	currentBudget, err := budget.GetCurrentBudget(user.ID)
+
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+		return
+	}
 	transaction := models.Transaction{}
 	transaction.UserId = user.ID
+	transaction.BudgetId = currentBudget.BudgetId
 
 	quantity := r.URL.Query().Get("quantity")
 	if quantity != "" {
