@@ -50,8 +50,9 @@ func GetBalance(w http.ResponseWriter, r *http.Request) {
 	var totalIncome float64
 	var totalExpenses float64
 	for _, t := range transactions {
-		if transaction.Type == "income" {
+		if t.Type == "income" {
 			totalIncome += float64(t.Amount)
+
 		} else {
 			totalExpenses += float64(t.Amount)
 		}
