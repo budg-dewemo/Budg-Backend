@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"BudgBackend/src/models"
+	"BudgBackend/src/repository"
 	"BudgBackend/src/responses"
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
@@ -140,6 +142,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(CreateTransactionResponse{ID: int(trs), Status: "transaction created"})
@@ -178,4 +181,71 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(CreateTransactionResponse{ID: int(transactionID), Status: "transaction deleted"})
 	return
+}
+func PutFile(w http.ResponseWriter, r *http.Request) {
+
+	user, errToken := validateToken(r)
+
+	if errToken != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
+		return
+	}
+
+	//get transaction id
+	//transactionID, getIdErr := strconv.Atoi(mux.Vars(r)["transaction"])
+	id := r.URL.Query().Get("id")
+	transactionID, getIdErr := strconv.Atoi(id)
+
+	if getIdErr != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(responses.Exception{Message: getIdErr.Error()})
+		return
+	}
+
+	//read file
+	file, handler, err := r.FormFile("file")
+	if err != nil {
+		fmt.Println("Error Retrieving the File")
+		fmt.Println(err)
+		return
+	}
+	defer file.Close()
+	//filename := handler.Filename
+	fmt.Printf("Uploaded File: %+v	", handler.Filename)
+
+	response, error := repository.PutFile(handler, file, 12)
+	if error != nil {
+		fmt.Println("Error Retrieving the File")
+		fmt.Println(error)
+		return
+	}
+
+	//check if transaction exist
+	transaction := models.Transaction{}
+	transaction.UserId = user.ID
+	trx, err := transaction.GetTransaction(transactionID)
+
+	if trx.Id == transactionID {
+		//update transaction with filepath
+		transaction.FilePath = response
+		filePathUpdated, errorUpdate := transaction.UpdateImagePath(transactionID)
+		if errorUpdate != nil {
+			fmt.Println("Error loading File")
+			fmt.Println(errorUpdate)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(filePathUpdated)
+
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Transaction not found"})
+		return
+	}
+
 }
