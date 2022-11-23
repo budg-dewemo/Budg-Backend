@@ -31,10 +31,10 @@ func (t *Transaction) GetTransactions(limit int) ([]Transaction, error) {
 	InfoLogger.Println("Getting transactions")
 	query := ""
 	if limit == -1 {
-		query = fmt.Sprintf("SELECT id as Id, user_id as UserId, budget_id as BudgetId, amount as Amount, description as Description, category_id as CategoryId, date as Date FROM User_transaction WHERE user_id = %d and budget_id = %d ORDER BY date DESC", t.UserId, t.BudgetId)
+		query = fmt.Sprintf("SELECT id as Id, user_id as UserId, budget_id as BudgetId, amount as Amount, description as Description, category_id as CategoryId, date as Date, type as Type, filepath as FilePath FROM User_transaction WHERE user_id = %d and budget_id = %d ORDER BY date DESC", t.UserId, t.BudgetId)
 
 	} else {
-		query = fmt.Sprintf("SELECT id as Id, user_id as UserId, budget_id as BudgetId, amount as Amount, description as Description, category_id as CategoryId, date as Date FROM User_transaction WHERE user_id = %d and budget_id = %d ORDER BY date DESC LIMIT %d", t.UserId, t.BudgetId, limit)
+		query = fmt.Sprintf("SELECT id as Id, user_id as UserId, budget_id as BudgetId, amount as Amount, description as Description, category_id as CategoryId, date as Date, type as Type, filepath as FilePath FROM User_transaction WHERE user_id = %d and budget_id = %d ORDER BY date DESC LIMIT %d", t.UserId, t.BudgetId, limit)
 	}
 	rows, err := database.QueryDB(query)
 	if err != nil {
@@ -45,7 +45,7 @@ func (t *Transaction) GetTransactions(limit int) ([]Transaction, error) {
 	for rows.Next() {
 		i++
 		var transaction Transaction
-		err = rows.Scan(&transaction.Id, &transaction.UserId, &transaction.BudgetId, &transaction.Amount, &transaction.Description, &transaction.CategoryId, &transaction.Date)
+		err = rows.Scan(&transaction.Id, &transaction.UserId, &transaction.BudgetId, &transaction.Amount, &transaction.Description, &transaction.CategoryId, &transaction.Date, &transaction.Type, &transaction.FilePath)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -61,7 +61,7 @@ func (t *Transaction) GetTransactions(limit int) ([]Transaction, error) {
 func (t *Transaction) GetTransaction(transactionID int) (Transaction, error) {
 	var transaction Transaction
 	InfoLogger.Println("Getting transaction with id: ", transactionID)
-	query := fmt.Sprintf("SELECT id as id, user_id as userId, budget_id as budgetId, amount as amount, description as description, category_id as categoryId, date as date FROM User_transaction WHERE id = %d and user_id = %d", transactionID, t.UserId)
+	query := fmt.Sprintf("SELECT id as id, user_id as userId, budget_id as budgetId, amount as amount, description as description, category_id as categoryId, date as date, type as Type, filepath as FilePath FROM User_transaction WHERE id = %d and user_id = %d", transactionID, t.UserId)
 	rows, err := database.QueryDB(query)
 	if err != nil {
 		fmt.Println(err)
@@ -69,7 +69,7 @@ func (t *Transaction) GetTransaction(transactionID int) (Transaction, error) {
 	i := 0
 	for rows.Next() {
 		i++
-		err = rows.Scan(&transaction.Id, &transaction.UserId, &transaction.BudgetId, &transaction.Amount, &transaction.Description, &transaction.CategoryId, &transaction.Date)
+		err = rows.Scan(&transaction.Id, &transaction.UserId, &transaction.BudgetId, &transaction.Amount, &transaction.Description, &transaction.CategoryId, &transaction.Date, &transaction.Type, &transaction.FilePath)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -99,6 +99,17 @@ func (t *Transaction) CreateTransaction() (int64, error) {
 	}
 
 	return id, nil
+}
+
+func (t *Transaction) UpdateImagePath(id int) (string, error) {
+	query := fmt.Sprintf("UPDATE User_transaction SET filepath = '%s' WHERE id = %d", t.FilePath, id)
+	fmt.Println(query)
+	_, err := database.UpdateDB(query)
+	if err != nil {
+		ErrorLogger.Println("Error updating transaction image path: ", err)
+		return "", err
+	}
+	return t.FilePath, nil
 }
 
 func (e *Transaction) DeleteTransaction(id int) (int64, error) {
