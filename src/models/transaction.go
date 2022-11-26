@@ -26,6 +26,38 @@ type Transaction struct {
 
 var Transactions []Transaction
 
+func (t *Transaction) GetAllTransactions(limit int) ([]Transaction, error) {
+	var transactions []Transaction
+	InfoLogger.Println("Getting transactions")
+	query := ""
+	if limit == -1 {
+		query = fmt.Sprintf("SELECT id as Id, user_id as UserId, budget_id as BudgetId, amount as Amount, description as Description, category_id as CategoryId, date as Date, type as Type, filepath as FilePath FROM User_transaction WHERE user_id = %d ORDER BY date DESC", t.UserId)
+
+	} else {
+		query = fmt.Sprintf("SELECT id as Id, user_id as UserId, budget_id as BudgetId, amount as Amount, description as Description, category_id as CategoryId, date as Date, type as Type, filepath as FilePath FROM User_transaction WHERE user_id = %d ORDER BY date DESC LIMIT %d", t.UserId, limit)
+	}
+	rows, err := database.QueryDB(query)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	i := 0
+	for rows.Next() {
+		i++
+		var transaction Transaction
+		err = rows.Scan(&transaction.Id, &transaction.UserId, &transaction.BudgetId, &transaction.Amount, &transaction.Description, &transaction.CategoryId, &transaction.Date, &transaction.Type, &transaction.FilePath)
+		if err != nil {
+			fmt.Println(err)
+		}
+		transactions = append(transactions, transaction)
+	}
+
+	if i == 0 {
+		return transactions, nil
+	}
+	return transactions, nil
+}
+
 func (t *Transaction) GetTransactions(limit int) ([]Transaction, error) {
 	var transactions []Transaction
 	InfoLogger.Println("Getting transactions")

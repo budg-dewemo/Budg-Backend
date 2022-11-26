@@ -25,53 +25,111 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
 		return
 	}
-	budget := models.Budget{}
-	currentBudget, err := budget.GetCurrentBudget(user.ID)
+	//budget := models.Budget{}
+	//currentBudget, err := budget.GetCurrentBudget(user.ID)
 
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
-		return
-	}
-	transaction := models.Transaction{}
-	transaction.UserId = user.ID
-	transaction.BudgetId = currentBudget.BudgetId
-
-	quantity := r.URL.Query().Get("quantity")
-	if quantity != "" {
-		quantityInt, err := strconv.Atoi(quantity)
-		if err != nil {
+	//if err != nil {
+	//	w.Header().Set("Content-Type", "application/json")
+	//	w.WriteHeader(http.StatusInternalServerError)
+	//	json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+	//	return
+	//}
+	var budgetId = 0
+	id := r.URL.Query().Get("budgetId")
+	if id == "" {
+		budgetId = 0
+	} else {
+		var errGetBudget error
+		budgetId, errGetBudget = strconv.Atoi(id)
+		if errGetBudget != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+			json.NewEncoder(w).Encode(responses.Exception{Message: errGetBudget.Error()})
 			return
 		}
-		transactions, error := transaction.GetTransactions(quantityInt)
-		if error != nil {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(responses.Exception{Message: error.Error()})
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(transactions)
-		return
 	}
 
-	transactions, err := transaction.GetTransactions(-1)
-	if err != nil {
+	transaction := models.Transaction{}
+	transaction.UserId = user.ID
+	transaction.BudgetId = budgetId
+
+	var quantityLimit = -1
+	quantity := r.URL.Query().Get("quantity")
+	if quantity == "" {
+		quantityLimit = -1
+	} else {
+		var errGetQuantity error
+		quantityLimit, errGetQuantity = strconv.Atoi(quantity)
+		if errGetQuantity != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(responses.Exception{Message: errGetQuantity.Error()})
+			return
+		}
+	}
+
+	var transactions []models.Transaction
+	var errorGetTransactions error
+	if transaction.BudgetId == 0 {
+		transactions, errorGetTransactions = transaction.GetAllTransactions(quantityLimit)
+	} else {
+		transactions, errorGetTransactions = transaction.GetTransactions(quantityLimit)
+	}
+
+	if errorGetTransactions != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+		json.NewEncoder(w).Encode(responses.Exception{Message: errorGetTransactions.Error()})
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(transactions)
 	return
+
+	//if quantity != "" {
+	//	quantityInt, err := strconv.Atoi(quantity)
+	//	if err != nil {
+	//		w.Header().Set("Content-Type", "application/json")
+	//		w.WriteHeader(http.StatusBadRequest)
+	//		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+	//		return
+	//	}
+	//
+	//	//var transactions []models.Transaction
+	//	//var errorGetTransactions error
+	//	//if transaction.BudgetId == 0 {
+	//	//	transactions, errorGetTransactions = transaction.GetAllTransactions(quantityInt)
+	//	//} else {
+	//	//	transactions, errorGetTransactions = transaction.GetTransactions(quantityInt)
+	//	//}
+	//	////transactions, error := transaction.GetTransactions(quantityInt)
+	//	//
+	//	//if errorGetTransactions != nil {
+	//	//	w.Header().Set("Content-Type", "application/json")
+	//	//	w.WriteHeader(http.StatusInternalServerError)
+	//	//	json.NewEncoder(w).Encode(responses.Exception{Message: errorGetTransactions.Error()})
+	//	//	return
+	//	//}
+	//	//
+	//	//w.Header().Set("Content-Type", "application/json")
+	//	//w.WriteHeader(http.StatusOK)
+	//	//json.NewEncoder(w).Encode(transactions)
+	//	//return
+	//}
+	//
+	//transactions, err := transaction.GetTransactions(-1)
+	//if err != nil {
+	//	w.Header().Set("Content-Type", "application/json")
+	//	w.WriteHeader(http.StatusInternalServerError)
+	//	json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+	//	return
+	//}
+	//w.Header().Set("Content-Type", "application/json")
+	//w.WriteHeader(http.StatusOK)
+	//json.NewEncoder(w).Encode(transactions)
+	//return
 }
 
 func GetTransaction(w http.ResponseWriter, r *http.Request) {
