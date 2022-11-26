@@ -89,7 +89,7 @@ func (t *Transaction) GetTransaction(transactionID int) (Transaction, error) {
 func (t *Transaction) CreateTransaction() (int64, error) {
 	//transaction := transaction{UserId: userId, BudgetId: budgetId, Amount: amount, Description: description, CategoryId: categoryId}
 
-	insert := fmt.Sprintf("INSERT INTO User_transaction (user_id, budget_id, amount, description, category_id,type,date) VALUES (%d, %d, %f, '%s', %d, '%s', CURDATE())", t.UserId, t.BudgetId, t.Amount, t.Description, t.CategoryId, t.Type)
+	insert := fmt.Sprintf("INSERT INTO User_transaction (user_id, budget_id, amount, description, category_id,type,date) VALUES (%d, %d, %f, '%s', %d, '%s', '%s')", t.UserId, t.BudgetId, t.Amount, t.Description, t.CategoryId, t.Type, t.Date)
 	print(insert)
 	id, err := database.InsertDB(insert)
 	if err != nil {
