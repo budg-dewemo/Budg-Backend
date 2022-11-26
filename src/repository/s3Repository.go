@@ -48,32 +48,6 @@ const (
 
 )
 
-func ListBuckets() {
-	//sess := session.Must(session.NewSessionWithOptions(session.Options{
-	//	SharedConfigState: session.SharedConfigEnable,
-	//}))
-
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("us-west-2")},
-	)
-
-	// Create S3 service client
-	svc := s3.New(sess)
-
-	result, err := svc.ListBuckets(nil)
-	if err != nil {
-		fmt.Println("Error", err)
-		return
-	}
-
-	fmt.Println("Buckets:")
-
-	for _, b := range result.Buckets {
-		fmt.Printf("* %s created on %s",
-			aws.StringValue(b.Name), aws.TimeValue(b.CreationDate))
-	}
-}
-
 func createConnection() *s3.S3 {
 	creds := credentials.NewStaticCredentials(envConfig.accessKey, envConfig.secretKey, "")
 	_, err := creds.Get()
@@ -89,7 +63,7 @@ func createConnection() *s3.S3 {
 
 }
 
-func PutFile(fileHandler *multipart.FileHeader, file multipart.File, transactionid int64) (string, error) {
+func PutFile(fileHandler *multipart.FileHeader, file multipart.File, transactionid int) (string, error) {
 
 	svc := createConnection()
 	var size int64 = fileHandler.Size
@@ -115,21 +89,4 @@ func PutFile(fileHandler *multipart.FileHeader, file multipart.File, transaction
 	}
 	url := fmt.Sprintf("https://%s.s3.%s.amazonaws.com%s", envConfig.bucket, envConfig.region, path)
 	return url, nil
-	//fmt.Printf("response %s", awsutil.StringValue(resp))
 }
-
-//func GetFile(transactionid int64) (string, error) {
-//	svc := createConnection()
-//	path := fmt.Sprintf("/media/transactions/%d-%s", transactionid, "test.jpg")
-//	params := &s3.GetObjectInput{
-//		Bucket: aws.String(envConfig.bucket),
-//		Key:    aws.String(path),
-//	}
-//	resp, err := svc.GetObject(params)
-//
-//	if err != nil {
-//		return "", err
-//	}
-//	fmt.Printf("response %s", awsutil.StringValue(resp))
-//	return "", nil
-//}
