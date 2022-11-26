@@ -25,15 +25,7 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
 		return
 	}
-	//budget := models.Budget{}
-	//currentBudget, err := budget.GetCurrentBudget(user.ID)
 
-	//if err != nil {
-	//	w.Header().Set("Content-Type", "application/json")
-	//	w.WriteHeader(http.StatusInternalServerError)
-	//	json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
-	//	return
-	//}
 	var budgetId = 0
 	id := r.URL.Query().Get("budgetId")
 	if id == "" {
@@ -87,49 +79,6 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(transactions)
 	return
-
-	//if quantity != "" {
-	//	quantityInt, err := strconv.Atoi(quantity)
-	//	if err != nil {
-	//		w.Header().Set("Content-Type", "application/json")
-	//		w.WriteHeader(http.StatusBadRequest)
-	//		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
-	//		return
-	//	}
-	//
-	//	//var transactions []models.Transaction
-	//	//var errorGetTransactions error
-	//	//if transaction.BudgetId == 0 {
-	//	//	transactions, errorGetTransactions = transaction.GetAllTransactions(quantityInt)
-	//	//} else {
-	//	//	transactions, errorGetTransactions = transaction.GetTransactions(quantityInt)
-	//	//}
-	//	////transactions, error := transaction.GetTransactions(quantityInt)
-	//	//
-	//	//if errorGetTransactions != nil {
-	//	//	w.Header().Set("Content-Type", "application/json")
-	//	//	w.WriteHeader(http.StatusInternalServerError)
-	//	//	json.NewEncoder(w).Encode(responses.Exception{Message: errorGetTransactions.Error()})
-	//	//	return
-	//	//}
-	//	//
-	//	//w.Header().Set("Content-Type", "application/json")
-	//	//w.WriteHeader(http.StatusOK)
-	//	//json.NewEncoder(w).Encode(transactions)
-	//	//return
-	//}
-	//
-	//transactions, err := transaction.GetTransactions(-1)
-	//if err != nil {
-	//	w.Header().Set("Content-Type", "application/json")
-	//	w.WriteHeader(http.StatusInternalServerError)
-	//	json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
-	//	return
-	//}
-	//w.Header().Set("Content-Type", "application/json")
-	//w.WriteHeader(http.StatusOK)
-	//json.NewEncoder(w).Encode(transactions)
-	//return
 }
 
 func GetTransaction(w http.ResponseWriter, r *http.Request) {
@@ -272,14 +221,14 @@ func PutFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 	//filename := handler.Filename
-	fmt.Printf("Uploaded File: %+v	", handler.Filename)
 
-	response, error := repository.PutFile(handler, file, 12)
+	response, error := repository.PutFile(handler, file, transactionID)
 	if error != nil {
 		fmt.Println("Error Retrieving the File")
 		fmt.Println(error)
 		return
 	}
+	fmt.Printf("Uploaded File: %+v	", handler.Filename)
 
 	//check if transaction exist
 	transaction := models.Transaction{}
