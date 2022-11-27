@@ -5,7 +5,6 @@ import (
 	"BudgBackend/src/repository"
 	"BudgBackend/src/responses"
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
@@ -22,7 +21,8 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 	if errToken != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
+		ErrorLogger.Println(errToken.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al validar el token"})
 		return
 	}
 
@@ -36,7 +36,8 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 		if errGetBudget != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(responses.Exception{Message: errGetBudget.Error()})
+			ErrorLogger.Println(errGetBudget.Error())
+			json.NewEncoder(w).Encode(responses.Exception{Message: "Error al obtener el id del budget"})
 			return
 		}
 	}
@@ -55,7 +56,8 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 		if errGetQuantity != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(responses.Exception{Message: errGetQuantity.Error()})
+			ErrorLogger.Println(errGetQuantity.Error())
+			json.NewEncoder(w).Encode(responses.Exception{Message: "Error al obtener la cantidad de transacciones"})
 			return
 		}
 	}
@@ -71,7 +73,8 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 	if errorGetTransactions != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errorGetTransactions.Error()})
+		ErrorLogger.Println(errorGetTransactions.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al obtener las transacciones"})
 		return
 	}
 
@@ -88,14 +91,16 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	if getIdErr != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
+		json.NewEncoder(w).Encode(responses.Exception{Message: getIdErr.Error()})
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al obtener el id de la transacción"})
 		return
 	}
 
 	if errToken != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
+		ErrorLogger.Println(errToken.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al validar el token"})
 		return
 	}
 	transaction := models.Transaction{}
@@ -105,7 +110,8 @@ func GetTransaction(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+		ErrorLogger.Println(err.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al obtener la transacción"})
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -121,7 +127,8 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	if errToken != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
+		ErrorLogger.Println(errToken.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al validar el token"})
 		return
 	}
 
@@ -130,7 +137,8 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+		ErrorLogger.Println(err.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al obtener el json"})
 		return
 	}
 
@@ -146,7 +154,8 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+		ErrorLogger.Println(err.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al crear la transacción"})
 		return
 	}
 
@@ -162,7 +171,8 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 	if errToken != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
+		ErrorLogger.Println(errToken.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al validar el token"})
 		return
 	}
 
@@ -172,7 +182,8 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 	if getIdErr != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(responses.Exception{Message: getIdErr.Error()})
+		ErrorLogger.Println(getIdErr.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al obtener el id de la transacción"})
 		return
 	}
 
@@ -181,7 +192,8 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+		ErrorLogger.Println(err.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al eliminar la transacción"})
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -196,27 +208,27 @@ func PutFile(w http.ResponseWriter, r *http.Request) {
 	if errToken != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
+		ErrorLogger.Println(errToken.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al validar el token"})
 		return
 	}
 
-	//get transaction id
-	//transactionID, getIdErr := strconv.Atoi(mux.Vars(r)["transaction"])
 	id := r.URL.Query().Get("id")
 	transactionID, getIdErr := strconv.Atoi(id)
 
 	if getIdErr != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(responses.Exception{Message: getIdErr.Error()})
+		ErrorLogger.Println(getIdErr.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al obtener el id de la transacción"})
 		return
 	}
 
 	//read file
 	file, handler, err := r.FormFile("file")
 	if err != nil {
-		fmt.Println("Error Retrieving the File")
-		fmt.Println(err)
+		ErrorLogger.Println("Error Retrieving the File ", err.Error())
+
 		return
 	}
 	defer file.Close()
@@ -224,11 +236,10 @@ func PutFile(w http.ResponseWriter, r *http.Request) {
 
 	response, error := repository.PutFile(handler, file, transactionID)
 	if error != nil {
-		fmt.Println("Error Retrieving the File")
-		fmt.Println(error)
+		ErrorLogger.Println("Error Retrieving the File ", error.Error())
+
 		return
 	}
-	fmt.Printf("Uploaded File: %+v	", handler.Filename)
 
 	//check if transaction exist
 	transaction := models.Transaction{}
@@ -240,8 +251,7 @@ func PutFile(w http.ResponseWriter, r *http.Request) {
 		transaction.FilePath = response
 		filePathUpdated, errorUpdate := transaction.UpdateImagePath(transactionID)
 		if errorUpdate != nil {
-			fmt.Println("Error loading File")
-			fmt.Println(errorUpdate)
+			ErrorLogger.Println("Error Retrieving the File ", errorUpdate.Error())
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")

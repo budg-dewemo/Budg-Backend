@@ -5,7 +5,6 @@ import (
 	"BudgBackend/src/models"
 	"BudgBackend/src/responses"
 	"encoding/json"
-	"fmt"
 	"github.com/golang-jwt/jwt/v4"
 	"log"
 	"net/http"
@@ -43,7 +42,8 @@ func CreateToken(w http.ResponseWriter, r *http.Request) {
 	if errLogin != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		err := json.NewEncoder(w).Encode(responses.Exception{Message: errLogin.Error()})
+		ErrorLogger.Println(errLogin.Error())
+		err := json.NewEncoder(w).Encode(responses.Exception{Message: "Error validando el usuario"})
 		if err != nil {
 			return
 		}
@@ -60,19 +60,12 @@ func CreateToken(w http.ResponseWriter, r *http.Request) {
 		})
 		tokenString, error := token.SignedString(jwtToken)
 		if error != nil {
-			fmt.Println(error)
+			ErrorLogger.Println(error.Error())
+
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-
-		////create response with token and expiration
-		//response := responses.TokenResponse{Token: tokenString, Expiration: expiration}
-		//err := json.NewEncoder(w).Encode(response)
-		//if err != nil {
-		//	fmt.Println(err)
-		//	return
-		//}
 
 		json.NewEncoder(w).Encode(models.JwtToken{Token: tokenString, Expiration: expiration})
 

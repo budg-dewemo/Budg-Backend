@@ -11,7 +11,6 @@ type IUser interface {
 	GetUser(username string) User
 }
 
-// User is a user.
 type User struct {
 	ID         int    `json:"id"`
 	Name       string `json:"name"`
@@ -20,17 +19,6 @@ type User struct {
 	AvatarLink string `json:"avatar"`
 	Username   string `json:"username"`
 	Password   string `json:"password"`
-}
-
-var Users = []User{
-	User{
-		Username: "user1",
-		Password: "password1",
-	},
-	User{
-		Username: "user2",
-		Password: "password2",
-	},
 }
 
 func (u *User) checkUserExists() bool {
@@ -91,7 +79,7 @@ func (u *User) ValidateLogin() (bool, error) {
 	query := fmt.Sprintf("SELECT id,password FROM User WHERE username = '%s'", u.Username)
 	rows, err := database.QueryDB(query)
 	if err != nil {
-		fmt.Println(err)
+		ErrorLogger.Println(err.Error())
 	}
 	i := 0
 	var hashFromBD string
@@ -99,7 +87,7 @@ func (u *User) ValidateLogin() (bool, error) {
 		i++
 		err = rows.Scan(&u.ID, &hashFromBD)
 		if err != nil {
-			fmt.Println(err)
+			ErrorLogger.Println(err.Error())
 		}
 	}
 	// si obtengo 0 resultados, no existe el usuario
@@ -139,6 +127,12 @@ func (u *User) CreateUser() (int64, error) {
 		ErrorLogger.Println("Error creating user: ", err)
 		return 0, fmt.Errorf("Error creating user: ", err)
 	}
+	u.ID = int(id)
+	_, errBudget := u.createBudget()
+	if errBudget != nil {
+		ErrorLogger.Println("Error creating budget: ", err)
+		return 0, fmt.Errorf("Error creating budget: ", err)
+	}
 	return id, nil
 }
 
@@ -158,8 +152,17 @@ func (u *User) GetUser() (User, error) {
 		}
 	}
 
-	fmt.Println(*u)
 	return *u, nil
+}
+func (u *User) createBudget() (int64, error) {
+	query := fmt.Sprintf("INSERT INTO Budget (user_id, name, amount, start_date, end_date, current_budget) VALUES (%d, 'Budget', 0, now(),DATE_ADD(now(), INTERVAL 1 MONTH),1)", u.ID)
+
+	id, err := database.InsertDB(query)
+	if err != nil {
+		ErrorLogger.Println("Error creating budget: ", err)
+		return 0, fmt.Errorf("Error creating budget: ", err)
+	}
+	return id, nil
 }
 
 func (u *User) validateHash(hashFromBD string) bool {

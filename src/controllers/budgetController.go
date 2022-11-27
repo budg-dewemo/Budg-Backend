@@ -19,7 +19,8 @@ func CreateBudget(w http.ResponseWriter, r *http.Request) {
 	if errToken != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
+		ErrorLogger.Println(errToken.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al validar el token"})
 		return
 	}
 
@@ -28,7 +29,8 @@ func CreateBudget(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+		ErrorLogger.Println(err.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al decodificar el json"})
 		return
 	}
 
@@ -38,7 +40,8 @@ func CreateBudget(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+		ErrorLogger.Println(err.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al crear el budget"})
 		return
 	}
 
@@ -55,7 +58,8 @@ func GetCurrentBudget(w http.ResponseWriter, r *http.Request) {
 	if errToken != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
+		ErrorLogger.Println(errToken.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al validar el token"})
 		return
 	}
 
@@ -65,7 +69,8 @@ func GetCurrentBudget(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+		ErrorLogger.Println(err.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al obtener el budget"})
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
