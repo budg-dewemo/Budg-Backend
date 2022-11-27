@@ -53,7 +53,7 @@ func createConnection() *s3.S3 {
 	_, err := creds.Get()
 
 	if err != nil {
-		fmt.Println("bad credentials")
+		ErrorLogger.Println("bad credentials", err.Error())
 	}
 	//WithRegion("us-west-1")
 	cfg := aws.NewConfig().WithCredentials(creds).WithRegion(envConfig.region)

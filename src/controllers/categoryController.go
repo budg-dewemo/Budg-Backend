@@ -19,7 +19,8 @@ func GetCategories(w http.ResponseWriter, r *http.Request) {
 	if errToken != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
+		ErrorLogger.Println(errToken.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al validar el token"})
 		return
 	}
 	category := models.Category{}
@@ -28,7 +29,8 @@ func GetCategories(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+		ErrorLogger.Println(err.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al obtener las categorias"})
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -42,7 +44,8 @@ func CreateCategory(w http.ResponseWriter, r *http.Request) {
 	if errToken != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
+		ErrorLogger.Println(errToken.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al validar el token"})
 		return
 	}
 	category := models.Category{}
@@ -50,7 +53,8 @@ func CreateCategory(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+		ErrorLogger.Println(err.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al decodificar el json"})
 		return
 	}
 	category.UserId = user.ID
@@ -58,7 +62,8 @@ func CreateCategory(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+		ErrorLogger.Println(err.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al crear la categoria"})
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")

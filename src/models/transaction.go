@@ -38,7 +38,7 @@ func (t *Transaction) GetAllTransactions(limit int) ([]Transaction, error) {
 	}
 	rows, err := database.QueryDB(query)
 	if err != nil {
-		fmt.Println(err)
+		ErrorLogger.Println(err.Error())
 	}
 
 	i := 0
@@ -47,7 +47,7 @@ func (t *Transaction) GetAllTransactions(limit int) ([]Transaction, error) {
 		var transaction Transaction
 		err = rows.Scan(&transaction.Id, &transaction.UserId, &transaction.BudgetId, &transaction.Amount, &transaction.Description, &transaction.CategoryId, &transaction.Date, &transaction.Type, &transaction.FilePath)
 		if err != nil {
-			fmt.Println(err)
+			ErrorLogger.Println(err.Error())
 		}
 		transactions = append(transactions, transaction)
 	}
@@ -70,7 +70,7 @@ func (t *Transaction) GetTransactions(limit int) ([]Transaction, error) {
 	}
 	rows, err := database.QueryDB(query)
 	if err != nil {
-		fmt.Println(err)
+		ErrorLogger.Println(err.Error())
 	}
 
 	i := 0
@@ -79,7 +79,7 @@ func (t *Transaction) GetTransactions(limit int) ([]Transaction, error) {
 		var transaction Transaction
 		err = rows.Scan(&transaction.Id, &transaction.UserId, &transaction.BudgetId, &transaction.Amount, &transaction.Description, &transaction.CategoryId, &transaction.Date, &transaction.Type, &transaction.FilePath)
 		if err != nil {
-			fmt.Println(err)
+			ErrorLogger.Println(err.Error())
 		}
 		transactions = append(transactions, transaction)
 	}
@@ -96,14 +96,14 @@ func (t *Transaction) GetTransaction(transactionID int) (Transaction, error) {
 	query := fmt.Sprintf("SELECT id as id, user_id as userId, budget_id as budgetId, amount as amount, description as description, category_id as categoryId, date as date, type as Type, filepath as FilePath FROM User_transaction WHERE id = %d and user_id = %d", transactionID, t.UserId)
 	rows, err := database.QueryDB(query)
 	if err != nil {
-		fmt.Println(err)
+		ErrorLogger.Println(err.Error())
 	}
 	i := 0
 	for rows.Next() {
 		i++
 		err = rows.Scan(&transaction.Id, &transaction.UserId, &transaction.BudgetId, &transaction.Amount, &transaction.Description, &transaction.CategoryId, &transaction.Date, &transaction.Type, &transaction.FilePath)
 		if err != nil {
-			fmt.Println(err)
+			ErrorLogger.Println(err.Error())
 		}
 	}
 
@@ -135,7 +135,6 @@ func (t *Transaction) CreateTransaction() (int64, error) {
 
 func (t *Transaction) UpdateImagePath(id int) (string, error) {
 	query := fmt.Sprintf("UPDATE User_transaction SET filepath = '%s' WHERE id = %d", t.FilePath, id)
-	fmt.Println(query)
 	_, err := database.UpdateDB(query)
 	if err != nil {
 		ErrorLogger.Println("Error updating transaction image path: ", err)

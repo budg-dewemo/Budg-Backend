@@ -18,7 +18,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(responses.Exception{Message: err.Error()})
+		ErrorLogger.Println(err)
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al decodificar el usuario"})
 		return
 	}
 
@@ -26,14 +27,16 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errCreate.Error()})
+		ErrorLogger.Println(errCreate)
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al crear el usuario"})
 		return
 	}
 
 	if id == 0 {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errCreate.Error()})
+		ErrorLogger.Println(errCreate)
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al crear el usuario"})
 		return
 	}
 

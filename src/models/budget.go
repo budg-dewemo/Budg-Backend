@@ -51,7 +51,7 @@ func (b *Budget) GetCurrentBudget(userId int) (Budget, error) {
 		query := fmt.Sprintf("SELECT id as budgetId, name as name, user_id as userId, amount as amount, start_date as startDate, end_date as endDate FROM Budget WHERE user_id = %d AND current_budget = true", userId)
 		rows, err := database.QueryDB(query)
 		if err != nil {
-			fmt.Println(err)
+			ErrorLogger.Println(err.Error())
 		}
 
 		i := 0
@@ -59,7 +59,7 @@ func (b *Budget) GetCurrentBudget(userId int) (Budget, error) {
 			i++
 			err = rows.Scan(&budget.BudgetId, &budget.Name, &budget.UserId, &budget.Amount, &budget.StartDate, &budget.EndDate)
 			if err != nil {
-				fmt.Println(err)
+				ErrorLogger.Println(err.Error())
 			}
 		}
 

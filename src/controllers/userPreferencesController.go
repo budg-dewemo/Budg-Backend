@@ -15,7 +15,8 @@ func GetUserPreferences(w http.ResponseWriter, r *http.Request) {
 	if errToken != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errToken.Error()})
+		ErrorLogger.Println(errToken.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al validar el token"})
 		return
 	}
 
@@ -27,14 +28,16 @@ func GetUserPreferences(w http.ResponseWriter, r *http.Request) {
 	if errUser != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errUser.Error()})
+		ErrorLogger.Println(errUser.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al obtener el usuario"})
 		return
 	}
 
 	if errBudget != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(responses.Exception{Message: errBudget.Error()})
+		ErrorLogger.Println(errBudget.Error())
+		json.NewEncoder(w).Encode(responses.Exception{Message: "Error al obtener el budget"})
 		return
 	}
 
