@@ -133,6 +133,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	transaction := models.Transaction{}
+	transaction.FilePath = "https://testbucketantonia.s3.amazonaws.com/media/transactions/image-placeholder.jpeg"
 	err := json.NewDecoder(r.Body).Decode(&transaction)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
